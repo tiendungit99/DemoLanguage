@@ -1,0 +1,14 @@
+{
+    "profile_name": "profile_name_default",
+    "profile_bio": "profile_bio_default",
+    "change_lang": "change_lang_default",
+    "posts": "posts_default",
+    "followers": "followers_default",
+    "following": "following_default",
+    "edit_profile": "edit_profile_default",
+    "male": "male_default",
+    "joined": "joined_default",
+    "email": "email_default",
+    "phone_number": "phone_number_default",
+    "birth_date": "birth_date_default"
+}
