@@ -27,12 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import com.example.myapplication.language.AppLanguage
 import com.example.myapplication.language.LanguageViewModel
 import com.example.myapplication.language.LanguageViewModelFactory
-import com.example.myapplication.language.StringApp
 
-val LocalLanguage = staticCompositionLocalOf<StringApp> {
-    StringApp()
+val LocalLanguage = staticCompositionLocalOf<AppLanguage> {
+    AppLanguage()
 }
 
 

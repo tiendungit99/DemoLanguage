@@ -36,7 +36,7 @@ annotation class ApplicationContext
 
 class LanguageViewModel(@ApplicationContext val context: Context) : ViewModel() {
     val currentLanguage: MutableStateFlow<String> = MutableStateFlow("vi")
-    var appLanguage: MutableStateFlow<StringApp> = MutableStateFlow(StringApp()) //default
+    var appLanguage: MutableStateFlow<AppLanguage> = MutableStateFlow(AppLanguage()) //default
 
     private val sharedPreferences = context.getSharedPreferences("lang", Context.MODE_PRIVATE)
 
@@ -68,7 +68,7 @@ class LanguageViewModel(@ApplicationContext val context: Context) : ViewModel() 
 
     fun changeLanguage(specificLang: String? = null) {
         viewModelScope.launch {
-            var languageObject: StringApp
+            var languageObject: AppLanguage
             val newLang = specificLang
                 ?: when (currentLanguage.value) {
                     "vi" -> "en"
@@ -85,12 +85,12 @@ class LanguageViewModel(@ApplicationContext val context: Context) : ViewModel() 
     }
 
 
-    private fun saveLanguageToFile(fileName: String, stringApp: StringApp) {
+    private fun saveLanguageToFile(fileName: String, stringApp: AppLanguage) {
         viewModelScope.launch(Dispatchers.IO) {
             val moshi = Moshi.Builder()
                 .add(KotlinJsonAdapterFactory())
                 .build()
-            val adapter = moshi.adapter(StringApp::class.java)
+            val adapter = moshi.adapter(AppLanguage::class.java)
 
             context.openFileOutput(fileName, Context.MODE_PRIVATE).use { output ->
                 output.write(adapter.toJson(stringApp).toByteArray())
@@ -98,22 +98,22 @@ class LanguageViewModel(@ApplicationContext val context: Context) : ViewModel() 
         }
     }
 
-    suspend fun readStringAppFromJsonFile(context: Context, fileName: String): StringApp {
-        var stringApp: StringApp
+    suspend fun readStringAppFromJsonFile(context: Context, fileName: String): AppLanguage {
+        var stringApp: AppLanguage
         withContext(Dispatchers.IO) {
             val file = File(context.filesDir, fileName)
             if (!file.exists()) {
                 //default to empty StringApp if file does not exist
-                stringApp = StringApp()
+                stringApp = AppLanguage()
             }
 
             val moshi = Moshi.Builder()
                 .add(KotlinJsonAdapterFactory())
                 .build()
-            val adapter = moshi.adapter(StringApp::class.java)
+            val adapter = moshi.adapter(AppLanguage::class.java)
 
             val jsonString = context.openFileInput(fileName).bufferedReader().use { it.readText() }
-            stringApp = adapter.fromJson(jsonString) ?: StringApp()
+            stringApp = adapter.fromJson(jsonString) ?: AppLanguage()
         }
         return stringApp
     }

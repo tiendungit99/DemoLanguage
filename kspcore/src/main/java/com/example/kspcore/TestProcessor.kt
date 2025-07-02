@@ -32,7 +32,7 @@ class TestProcessor(
 
     private fun fetchTodoAsync(): String? {
         return try {
-            val url = URL("https://jsonplaceholder.typicode.com/todos/1")
+            val url = URL("https://tiendungit99.github.io/DemoLanguage/data.json")
             val connection = url.openConnection() as HttpURLConnection
 
             connection.apply {
@@ -85,6 +85,8 @@ class TestProcessor(
 
             val json1 = fetchTodoAsync()?.trimIndent() ?: ""
 
+            kspLogger.info("JSON fetched: $json1")
+
             // Use Moshi to parse JSON into a Map
             val moshi = Moshi.Builder().build()
             val type =
@@ -94,34 +96,45 @@ class TestProcessor(
 
             var output = actualOutput.build(json1, "AppLanguage")
 
+            // Convert snake_case to camelCase for property matching
+            fun snakeToCamelCase(snake: String): String {
+                return snake.split("_").mapIndexed { index, part ->
+                    if (index == 0) part else part.capitalize()
+                }.joinToString("")
+            }
+
             // Replace property declarations with default values
-            for ((prop, value) in propertyDefaults) {
+            for ((jsonKey, value) in propertyDefaults) {
+                val camelCaseProperty = snakeToCamelCase(jsonKey)
+
                 val defaultValue = when (value) {
                     is String -> "\"${value.replace("\"", "\\\"").replace("\n", "\\n")}\""
-                    is Number -> value.toString().toIntOrNull() ?: "0"
+                    is Number -> {
+                        if (value is Double || value.toString().contains(".")) {
+                            "${value}"
+                        } else {
+                            value.toString()
+                        }
+                    }
                     is Boolean -> value.toString()
-                    is Double -> "${value}0" // Ensure it's treated as Double
                     else -> "\"$value\""
                 }
 
-                // More robust regex pattern that handles different property types
-                val patterns = listOf(
-                    Regex("""val\s+$prop:\s+([A-Za-z0-9_<>?]+)(\s*=\s*[^,\n]+)?"""),
-                    Regex("""val\s+$prop:\s+([A-Za-z0-9_<>?]+)""")
-                )
+                // Updated regex pattern to match the actual generated property names
+                // This pattern looks for: val propertyName: Type = someValue or val propertyName: Type,
+                val pattern = Regex("""(val\s+$camelCaseProperty:\s+[A-Za-z0-9_<>?]+)(\s*=\s*[^,\n)]+)?([,\n)])""")
 
-                for (pattern in patterns) {
-                    if (pattern.containsMatchIn(output)) {
-                        output = output.replace(pattern, "val $prop: $1 = $defaultValue")
-                        break
-                    }
+                output = output.replace(pattern) { matchResult ->
+                    val propertyDeclaration = matchResult.groupValues[1]
+                    val endChar = matchResult.groupValues[3]
+                    "$propertyDeclaration = $defaultValue$endChar"
                 }
             }
-
 
             output = "/**\n" +
                     " * Automatically generated file. DO NOT MODIFY\n" +
                     " */ \n\n" + output
+
             // Create the file using KSP CodeGenerator
             kotlin.runCatching {
                 val file = codeGenerator.createNewFile(
@@ -132,9 +145,10 @@ class TestProcessor(
                 )
 
                 file.write(output.toByteArray())
-                file.close() //
+                file.close()
             }
         } catch (e: Exception) {
+            kspLogger.error("Error generating class file: ${e.message}")
         }
     }
 }
