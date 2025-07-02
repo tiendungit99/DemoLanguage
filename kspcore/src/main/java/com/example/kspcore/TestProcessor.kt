@@ -32,7 +32,9 @@ class TestProcessor(
 
     private fun fetchTodoAsync(): String? {
         return try {
-            val url = URL("https://tiendungit99.github.io/DemoLanguage/data.json")
+            val urlString = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLi72LYE3yvYWHQVRaGH_5NkY74iEpQcAUkJrewK3_9-TwfDlhCiSXYVYV64ARnP8JKG4HnylMsY5LlD2JIuTPW3M992oPkGNdK4NNbOD6Bf_vzQMkGZZNEsIG48QytSY4dihTdf4mD2EeAIInjwliQz5noCBoPuxMWXxme-drFsyWf5D8qs1awVP6OEK0AdRs_u_SLLtnTRoQKcC5Yd72w2tSmBD3oQQsY2a7Wq1VyUR94qUhOuyIKqQfWdRHMMCF1p9EjeqrNfHuhfjBfd0acLNYZUZIdv9RE48CNq&lib=MQfjgH0kBc4n8n3R-PPYvGrTFd0BYWbni"
+            val urlGit = "https://tiendungit99.github.io/DemoLanguage/data.json"
+            val url = URL(urlString)
             val connection = url.openConnection() as HttpURLConnection
 
             connection.apply {
