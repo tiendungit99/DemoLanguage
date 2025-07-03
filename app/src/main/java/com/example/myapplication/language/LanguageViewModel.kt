@@ -40,6 +40,8 @@ class LanguageViewModel(@ApplicationContext val context: Context) : ViewModel() 
 
     private val sharedPreferences = context.getSharedPreferences("lang", Context.MODE_PRIVATE)
 
+    val loadedState = MutableStateFlow(false)
+
     init {
         val lang = sharedPreferences?.getString("lang", "vi") ?: "vi"
         currentLanguage.update { lang }
@@ -63,6 +65,7 @@ class LanguageViewModel(@ApplicationContext val context: Context) : ViewModel() 
                     appLanguage.update { value }
                 }
             }
+            loadedState.value = true
         }
     }
 

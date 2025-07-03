@@ -19,7 +19,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -27,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.myapplication.language.AppLanguage
 import com.example.myapplication.language.LanguageViewModel
 import com.example.myapplication.language.LanguageViewModelFactory
@@ -42,14 +42,12 @@ class MainActivity2 : ComponentActivity() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        splashScreen.setKeepOnScreenCondition { !languageViewModel.loadedState.value }
         enableEdgeToEdge()
 
         setContent {
-            LaunchedEffect(Unit) {
-                languageViewModel.fetchLanguage()
-            }
-
             val appString = languageViewModel.appLanguage.collectAsState()
 
             CompositionLocalProvider(LocalLanguage provides appString.value) {
@@ -61,10 +59,10 @@ class MainActivity2 : ComponentActivity() {
                     ) {
                         ProfileView(languageViewModel)
                     }
-
                 }
             }
         }
+        languageViewModel.fetchLanguage()
     }
 }
 
@@ -91,12 +89,12 @@ fun ProfileView(languageViewModel: LanguageViewModel) {
                 modifier = Modifier.padding(8.dp)
             )
         }
+
         Button(onClick = {
             languageViewModel.changeLanguage()
         }) {
             Text(text = LocalLanguage.current.changeLang)
         }
-
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),

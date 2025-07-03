@@ -113,7 +113,7 @@ class TestProcessor(
                     is String -> "\"${value.replace("\"", "\\\"").replace("\n", "\\n")}\""
                     is Number -> {
                         if (value is Double || value.toString().contains(".")) {
-                            "${value}"
+                            "$value"
                         } else {
                             value.toString()
                         }
